@@ -1,0 +1,40 @@
+version: '3.9'
+
+services:
+  keycloak:
+    container_name: keycloak
+#poling the image from repo
+    image: jboss/keycloak
+# expose ports HOST:CONTAINER
+    ports:
+      - 8080:8080
+# creating environment variables:
+    environment: 
+      - KEYCLOAK_ADMIN=admin
+      - KeyCLOAK_PASSWORD=admin
+    networks:
+      - guess
+
+# the name of the container
+  guess-app:  
+    build:
+# The link to the docker image
+      context: .
+# In this case the compose will build the image from the dockerfile
+#just like the command "docker build ."
+      dockerfile: Dockerfile
+# connect to docker network named "guess"
+    networks:
+      - guess
+# expose the container to port 5000
+    ports:
+      - 5000:5000
+# the keycloak service will wait till the guess-app will run
+    depends_on:
+      - keycloak
+    environment:
+     - KEYCLOAK_URL=http://keycloak:8080
+
+#build the internal docker network
+networks:
+  guess:
